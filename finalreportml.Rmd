@@ -50,19 +50,6 @@ The second line transforms to "More Acidic" all of the elements for which the pr
 
 ```{r}
 library(MASS)
-#train=(Number<4000)
-#qual.4000= qual[!train,]
-#dim(qual.4000) 
-#quality.4000=quality[!train]
-#quality.4000
-#library(caret)
-#library(klaR)
-#split=0.80
-#trainIndex=Number<4000
-#data_train <- qual[ 1:4000,]
-#data_test <- qual[4000:4898,]
-#x_test <- data_test[,4000:4898]
-#y_test <- data_test[,4000:4898]
 
 n <- nrow(qual)
 ntrain<-round(n*0.75)
@@ -79,17 +66,7 @@ xtab<-table(data_test$quality, prediction)
 
 mean(test_qual$quality==prediction)
 
-#predictions <- predict(glm.fits2, x_test)
-#confusionMatrix(predictions$class, y_test)
-
-#glm.probs=predict(glm.fits,newdata=quality.4000, type="response")
-#confusionMatrix(predictions$class, y_test)
-
-#glm.pred=rep("Less Acidic",2000)
-#glm.pred[glm.probs<6.1]="More Acidic"
-#table(glm.pred,quality)
-
-#mean(glm.pred==quality)
+)
 ```
 
 
@@ -220,6 +197,7 @@ set.seed(1)
 
 The boot.fn() function can also be used in order to create bootstrap estimates for the intercept and slope terms by randomly sampling from among the observations with replacement.
 boot() function to compute the standard errors of 4000 bootstrap estimates for the intercept and slope terms
+
 ```{r}
 boot.fn(qual,sample(4000,4000,replace=T))
 boot.fn(qual,sample(4000,4000,replace=T))
@@ -253,7 +231,6 @@ data(qual)
 The gamma parameter defines how far the influence of a single training example reaches, with low values meaning ‘far’ and high values meaning ‘close’.
 
 A lower C will encourage a larger margin, therefore a simpler decision function, at the cost of training accuracy. In other words``C`` behaves as a regularization parameter in the SVM.
-set.seed(3)
 
 ```{r}
 n <- nrow(qual)
@@ -391,14 +368,9 @@ library(plotROC)
 library(rocsvm.path)
 library(ROCR)
 set.seed(1000)
-## 3-class in response variable
-#rf = randomForest(quality~., data = qual, ntree = 100)
-# predict(.., type = 'prob') returns a probability matrix
+
 multiclass.roc(qual$quality, predict(test_forest, quality, type = 'prob'))
 
-#rs <- roc.multi[['rocs']]
-#plot.roc(rs)
-#sapply(2:length(rs),function(i) lines.roc(rs[[i]],col=i))
 
 library(ROCR)
 mymodel<-randomForest(quality~fixedacidity+volatileacidity+citricacid+residualsugar+chlorides+density+pH+sulphates+alcohol,data=train)
@@ -433,9 +405,7 @@ ROC
 ```{r}
 library(pROC)
 set.seed(1000)
-# 3-class in response variable
 rf = randomForest(quality~., data = qual, ntree = 100)
-# predict(.., type = 'prob') returns a probability matrix
 multiclass.roc(iris$Species, predict(rf, quality, type = 'prob'))
 ```
 
