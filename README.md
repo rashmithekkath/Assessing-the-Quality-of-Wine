@@ -1,6 +1,9 @@
 # Assessing-the-Quality-of-Wine
 A 7-class classification problem of wine classification based on various physical and chemical attributes of wine.
 
+Language: R
+IDE used: RStudio
+
 Linear models used: 
 1) LDA 
 2) KNN
