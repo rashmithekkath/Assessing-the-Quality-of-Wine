@@ -1,0 +1,444 @@
+---
+title: "finalreport"
+author: "Rashmi Thekkath"
+date: "02/06/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+cor(qual)
+qual<-read.csv("C://Users//Rashh//Documents//winequality.csv")
+attach(qual)
+names(qual)
+dim(qual)
+summary(qual)
+nrow(qual)
+```
+LOGISTIC REGRESSION
+
+The glm() function ﬁts generalized linear models, a class of models that includes logistic regression.
+ 
+The syntax generalized linear modelof the glm() function is similar to that of lm(), except that we must pass in the argument family=binomial in order to tell R to run a logistic regression rather than some other type of generalized linear model.
+```{r}
+glm.fits=glm(quality~fixedacidity+volatileacidity+citricacid+residualsugar+chlorides+density+pH+sulphates+alcohol)
+summary(glm.fits)
+
+glm.fits1=glm(quality~+volatileacidity+residualsugar+density+pH+sulphates+alcohol)
+summary(glm.fits1)
+
+
+```
+
+The coef() function in order to access just the coeﬃcients for this ﬁtted model.
+The summary() function to access particular aspects of the ﬁtted model, such as the p-values for the coeﬃcients.
+ 
+```{r}
+coef(glm.fits1)
+summary(glm.fits1)$coef
+
+glm.fits2=glm(quality~+volatileacidity+residualsugar+pH+sulphates+alcohol)
+summary(glm.fits2)
+```
+
+The ﬁrst command creates a vector of 2000 Less Acidic elements.
+The second line transforms to "More Acidic" all of the elements for which the predicted quality level is less than 6.1.
+
+
+```{r}
+library(MASS)
+#train=(Number<4000)
+#qual.4000= qual[!train,]
+#dim(qual.4000) 
+#quality.4000=quality[!train]
+#quality.4000
+#library(caret)
+#library(klaR)
+#split=0.80
+#trainIndex=Number<4000
+#data_train <- qual[ 1:4000,]
+#data_test <- qual[4000:4898,]
+#x_test <- data_test[,4000:4898]
+#y_test <- data_test[,4000:4898]
+
+n <- nrow(qual)
+ntrain<-round(n*0.75)
+set.seed(3)
+
+tindex <- sample(n,ntrain)   
+data_train <- qual[tindex,]   
+data_test<- qual[-tindex,]
+          
+preds <- predict(glm.fits2,data_test)
+
+prediction <- predict(glm.fits2, data_test)
+xtab<-table(data_test$quality, prediction)
+
+mean(test_qual$quality==prediction)
+
+#predictions <- predict(glm.fits2, x_test)
+#confusionMatrix(predictions$class, y_test)
+
+#glm.probs=predict(glm.fits,newdata=quality.4000, type="response")
+#confusionMatrix(predictions$class, y_test)
+
+#glm.pred=rep("Less Acidic",2000)
+#glm.pred[glm.probs<6.1]="More Acidic"
+#table(glm.pred,quality)
+
+#mean(glm.pred==quality)
+```
+
+
+
+
+LINEAR DISCRIMINANT ANYALYSIS
+
+lda() function part of the MASS library
+Absence of the family option in lda() function, else similar to lm() and glm() functions
+```{r}
+library(MASS)
+train=(Number<4000)
+qual.4000= qual[!train,]
+dim(qual.4000) 
+quality.4000=quality[!train]
+quality.4000
+
+lda.fit=lda(quality~volatileacidity+residualsugar+pH+sulphates+alcohol,data=qual,subset=train)
+lda.fit
+```
+
+Training our model on the first 4000 datapoints.
+Testing our model on the last 899 datapoints.
+
+```{r}
+lda.pred=predict(lda.fit, qual.4000)
+names(lda.pred)
+lda.class=lda.pred$class
+table(lda.class,quality.4000)
+mean(lda.class==quality.4000)
+
+sum(lda.pred$posterior[,1]>=.1) 
+sum(lda.pred$posterior[,1]<.1)
+```
+
+KNN
+```{r}
+library(class)
+train.X=cbind(volatileacidity,residualsugar,pH,sulphates,alcohol)[train,]
+test.X=cbind(volatileacidity,residualsugar,pH,sulphates,alcohol)[!train,]
+train.quality=quality[train]
+```
+
+```{r}
+set.seed(1)
+knn.pred=knn(train.X,test.X,train.quality,k=1)
+table(knn.pred,quality.4000)
+mean(knn.pred==quality.4000) 
+```
+From the "mean(knn.pred==quality.4000)", we see that the results using K = 1 are not very good, since only 43.93% of the observations are correctly predicted. 
+
+Using K=3:
+```{r}
+set.seed(1)
+knn.pred=knn(train.X,test.X,train.quality,k=3)
+table(knn.pred,quality.4000)
+mean(knn.pred==quality.4000) 
+```
+
+Using K=10:
+```{r}
+set.seed(1)
+knn.pred=knn(train.X,test.X,train.quality,k=10)
+table(knn.pred,quality.4000)
+mean(knn.pred==quality.4000) 
+```
+
+Using K=9:
+```{r}
+set.seed(1)
+knn.pred=knn(train.X,test.X,train.quality,k=9)
+table(knn.pred,quality.4000)
+mean(knn.pred==quality.4000) 
+```
+
+Using K=13:
+```{r}
+set.seed(1)
+knn.pred=knn(train.X,test.X,train.quality,k=13)
+table(knn.pred,quality.4000)
+mean(knn.pred==quality.4000) 
+```
+
+Using K=70:
+```{r}
+set.seed(1)
+knn.pred=knn(train.X,test.X,train.quality,k=70)
+table(knn.pred,quality.4000)
+mean(knn.pred==quality.4000) 
+```
+
+
+Using K=70, we see that nearly 53% of the observations are correctly predicted.
+Thus, we see that taking the value of K as 70, we get results better compared to other k values.
+
+
+BOOTSTRAP
+
+The function "alpha.fn" is a function that returns the value of alpha and takes inputs X and Y- in this case, predictors alcohol and quality respectively. The value of alpha that the function returns a value for which the model experiences least variance.
+
+````{r}
+library(boot)
+alpha.fn=function(data,index){
+quality=data$quality[index]
+alcohol=data$alcohol[index]
+return((var(quality)-cov(alcohol,quality))/(var(alcohol)+var(quality)-2*cov(alcohol,quality)))
+}
+alpha.fn(qual,1:4800)
+set.seed(1)
+```
+
+The next function uses the sample() function 4000 observations from the range 1 to 4000, with replacement,i.e. it is equivalent to constructing a new bootstrap data set and recomputing α based on the new data set.
+```{r}
+alpha.fn(qual ,sample (4000,4000, replace=T))
+plot(alpha.fn(qual,1:4000))
+boot(qual,alpha.fn,R=4000)
+```
+
+
+ESTIMATING ACCURACY OF A LINEAR REGRESSION MODEL
+
+```{r}
+boot.fn=function(data,index)
+return(coef(lm(alcohol~volatileacidity+density+quality,data=qual,subset=index)))
+boot.fn(qual,1:2000)
+set.seed(1)
+```
+
+The boot.fn() function can also be used in order to create bootstrap estimates for the intercept and slope terms by randomly sampling from among the observations with replacement.
+boot() function to compute the standard errors of 4000 bootstrap estimates for the intercept and slope terms
+```{r}
+boot.fn(qual,sample(4000,4000,replace=T))
+boot.fn(qual,sample(4000,4000,replace=T))
+boot(qual,boot.fn,4000)
+```
+
+```{r}
+summary(lm(quality~volatileacidity+density+alcohol,data=qual))$coef
+boot.fn=function(data,index)
+coefficients(lm(quality~volatileacidity+density+alcohol+I(alcohol^2),data=qual,subset=index))
+set.seed(1)
+boot(qual,boot.fn,4000)
+summary(lm(quality~alcohol+I(quality^2),data=qual))$coef
+```
+
+SUPPORT VECTOR MACHINES
+
+```{r}
+qual<-read.csv("C://Users//Rashh//Documents//winequality_categorical.csv")
+attach(qual)
+names(qual)
+dim(qual)
+summary(qual)
+```
+
+```{r}
+library(e1071)   
+data(qual)
+```
+
+The gamma parameter defines how far the influence of a single training example reaches, with low values meaning ‘far’ and high values meaning ‘close’.
+
+A lower C will encourage a larger margin, therefore a simpler decision function, at the cost of training accuracy. In other words``C`` behaves as a regularization parameter in the SVM.
+set.seed(3)
+
+```{r}
+n <- nrow(qual)
+ntrain<-round(n*0.75)
+
+tindex <- sample(n,ntrain)   
+train_qual <- qual[tindex,]   
+test_qual<- qual[-tindex,]   
+model <- svm(quality~volatileacidity+pH+sulphates+alcohol,data=train_qual,method="C-classification",kernal='radial',gamma=0.1,cost=10)
+summary(model)
+
+```
+model$SV
+
+```{r}
+plot(model,train_qual,alcohol ~ pH,
+          slice=list(volatileacidity=0.25, sulphates=0.5))
+          
+preds <- predict(model,test_qual)
+table(preds)
+
+prediction <- predict(model, test_qual)
+xtab<-table(test_qual$quality, prediction)
+xtab
+
+mean(test_qual$quality==prediction)
+```
+
+ROC Curve
+
+```{r}
+library(nnet)
+library(ROCR)
+mymodel<-multinom(quality~volatileacidity+pH+sulphates+alcohol,data=qual)
+p<-predict(mymodel,qual)
+tab<-table(p,qual$quality)
+tab
+1-sum(diag(tab))/sum(tab)
+table(qual$quality)
+```
+```{r}
+
+svmfit.opt=svm(quality~volatileacidity+pH+sulphates+alcohol, data=train_qual, kernel ="radial", gamma =0.02, cost=0.001, decision.values =TRUE)
+fitted =attributes(predict(svmfit.opt ,train_qual, decision.values =TRUE))$decision.values
+par(mfrow =c(1,2))
+```
+rocplot (fitted ,qual[train_qual ,"Quality"], main="Training Data")
+
+DECISION TREE
+
+```{r}
+set.seed(1234)
+pd<-sample(2,row(qual),replace=TRUE, prob=c(0.8,0.2))
+train<-qual[pd==1,]
+validate<-qual[pd==2,]
+```
+Decision tree with party package
+
+The minsplit parameter is the smallest number of observations in the parent node that could be split further.
+Mincriterion is the value of the test statistic or 1 - p-value that must be exceeded in order to implement a split.
+
+Checking with mincriterion = 0.9,minsplit=700
+```{r}
+library(party)
+tree<-ctree(quality~volatileacidity+pH+sulphates+alcohol,data=train,controls=ctree_control(mincriterion = 0.9,minsplit=700))
+tree
+plot(tree)
+```
+Predict
+```{r}
+tab_one<-table(predict(tree),train$quality)
+print(tab_one)
+1-sum(diag(tab_one))/sum(tab_one)
+```
+
+
+Checking with mincriterion = 0.95,minsplit=1000
+```{r}
+library(party)
+tree<-ctree(quality~volatileacidity+pH+sulphates+alcohol,data=train,controls=ctree_control(mincriterion = 0.95,minsplit=1000))
+tree
+plot(tree)
+
+tab_one<-table(predict(tree),train$quality)
+print(tab_one)
+1-sum(diag(tab_one))/sum(tab_one)
+```
+
+Checking with mincriterion = 0.80,minsplit=1000
+```{r}
+library(party)
+tree<-ctree(quality~volatileacidity+pH+sulphates+alcohol,data=train,controls=ctree_control(mincriterion = 0.80,minsplit=1000))
+tree
+plot(tree)
+
+tab_one<-table(predict(tree),train$quality)
+print(tab_one)
+1-sum(diag(tab_one))/sum(tab_one)
+```
+
+Checking with mincriterion = 0.9,minsplit=875
+```{r}
+library(party)
+tree<-ctree(quality~volatileacidity+pH+sulphates+alcohol,data=train,controls=ctree_control(mincriterion = 0.9,minsplit=875))
+tree
+plot(tree)
+
+tab_one<-table(predict(tree),train$quality)
+print(tab_one)
+1-sum(diag(tab_one))/sum(tab_one)
+```
+
+RANDOM FOREST AND BAGGING
+
+```{r}
+qual <- read.csv("C://Users//Rashh//Documents//winequality_categorical.csv",header=TRUE)
+attach(qual)
+
+
+set.seed(111)
+ind=sample(2,nrow(qual),replace=TRUE,prob=c(0.8,0.2))
+train = qual[ind==1,]
+test = qual[ind==2,]
+
+library(randomForest)
+set.seed(222)
+train_forest <- randomForest(quality~fixedacidity+volatileacidity+citricacid+residualsugar+chlorides+density+pH+sulphates+alcohol,data=train)
+print(train_forest)
+attributes(train_forest)
+test_forest <- randomForest(quality~fixedacidity+volatileacidity+citricacid+residualsugar+chlorides+density+pH+sulphates+alcohol,data=test)
+print(test_forest)
+
+library(pROC)
+library(plotROC)
+library(rocsvm.path)
+library(ROCR)
+set.seed(1000)
+## 3-class in response variable
+#rf = randomForest(quality~., data = qual, ntree = 100)
+# predict(.., type = 'prob') returns a probability matrix
+multiclass.roc(qual$quality, predict(test_forest, quality, type = 'prob'))
+
+#rs <- roc.multi[['rocs']]
+#plot.roc(rs)
+#sapply(2:length(rs),function(i) lines.roc(rs[[i]],col=i))
+
+library(ROCR)
+mymodel<-randomForest(quality~fixedacidity+volatileacidity+citricacid+residualsugar+chlorides+density+pH+sulphates+alcohol,data=train)
+p<-predict(mymodel,qual)
+tab<-table(p,qual$quality)
+tab
+1-sum(diag(tab))/sum(tab)
+table(qual$quality)
+
+```
+
+BOOSTING
+
+```{r}
+object <- read.csv("C://Users//Rashh//Documents//winequality_categorical.csv")
+attach(object)
+library(gbm)
+set.seed(111)
+train = sample(1:nrow(object),500)
+object.train = object[train,]
+object.test = object[-train,]
+
+
+set.seed(222)
+boost.object=gbm(quality~fixedacidity+volatileacidity+citricacid+residualsugar+chlorides+density+pH+sulphates+alcohol,data=object[train,],distribution="gaussian",n.trees=5000,interaction.depth=4)
+summary(boost.object)
+```
+
+
+
+ROC
+```{r}
+library(pROC)
+set.seed(1000)
+# 3-class in response variable
+rf = randomForest(quality~., data = qual, ntree = 100)
+# predict(.., type = 'prob') returns a probability matrix
+multiclass.roc(iris$Species, predict(rf, quality, type = 'prob'))
+```
+
+
+
+
