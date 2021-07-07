@@ -35,7 +35,7 @@ ACCURACY FOR DATA MODELS:
 4) Decision Trees: 47.63% [Parameter value assigned: minsplit=1000; mincriterion:0.95]
 5) Random Forest: 58.62% [Parameter value assigned: No. of trees=500, No. of valriables tried at each split=3]
 
-AOC for ROC curve (calculated for Random Forest): 0.79
+AUC for ROC curve (calculated for Random Forest): 0.79
 
 ANALYSIS:
 1. Overall, we see that the non-linear models fit better than the linear models on our data.
